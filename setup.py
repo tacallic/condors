@@ -9,6 +9,7 @@ setup(
         'Click==7.0.0',
         'pandas',
         'xlrd',
+        'loguru',
     ],
     entry_points={
         'console_scripts': ['condors=condors:main']

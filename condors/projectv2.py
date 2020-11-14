@@ -4,7 +4,7 @@ import pandas as pd
 from .pyped import PedFile
 from .fieldsite import FieldSite
 
-chick_assignments = dict()
+# chick_assignments = dict()
 
 ped_filename = "zims10-15-2020.zims"
 chick_assignments_filename = "input.xlsx"
@@ -16,11 +16,6 @@ FWS_file = "Jan. 2020 living.xlsx"
 
 geno_filename = "Chondro_genotypes_short.xlsx"
 
-cali = FieldSite("WILD-CA")
-baja = FieldSite("WILD-BAJA")
-ariz = FieldSite("WILD-AZ")
-
-field_sites = [cali, baja, ariz]
 
 new_ped_filename = "output10-15-2020.zims"
 discrepancy_out_filename = "discrepancy_birds.csv"
@@ -55,13 +50,13 @@ location_updates = {
 
 
 def read_chick_assignments(filename: str):
-    global chick_assignments
     df = pd.read_excel(filename)
     chick_assignments = dict()
     for index, row in df.iterrows():
-        bird_id = int(row['ID'])
+        bird_id = str(row['ID'])
         bird_location = str(row['Location']).upper().strip()
         chick_assignments[bird_id] = bird_location
+    return chick_assignments
 
 # region Methods/Functions
 # To read in just a list of living bird IDs from a text file
@@ -116,28 +111,31 @@ def read_living_excel(update_xlsx_file, sheet):
 
 # Takes a list of lists [[bird ID, location], [bird ID, location]] and replaces locations with location_updates
 def replace_location(bird_list):
+    global location_updates
     for bird in bird_list:
         if bird[1] in location_updates:
             bird[1] = location_updates[str(bird[1])]
+    return bird_list
 
 
 # Takes a list of living birds from ZIMS [[bird ID, field site name], [bird ID, field site name]] and assigns birds
 # to Field Sites
-def populate_field_sites_zims(zims_list):
+def populate_field_sites_zims(zims_list, field_sites):
     for bird in zims_list:
         for site in field_sites:
             if bird[1] == site:
                 site.add_zims_entry(bird[0])
+    return field_sites
 
 
 # Takes a list of living birds from FWS [[bird ID, field site name], [bird ID, field site name]] and assigns birds
 # to Field Sites
-def populate_field_sites_fws(fws_list):
+def populate_field_sites_fws(fws_list, field_sites):
     for bird in fws_list:
         for site in field_sites:
             if bird[1] == site:
                 site.add_fws_entry(bird[0])
-
+    return field_sites
 
 # Takes the list of ZIMS living & released birds and adds their genotype info from genotype file
 def add_genotypes(living_list, geno_list):
@@ -153,7 +151,7 @@ def add_genotypes(living_list, geno_list):
 
 # Calls discrepancy functions for all field sites to find birds unique to FWS list, then tries to find them in ZIMS
 # data. Returns a list of the discrepancies.
-def fws_discrepancies_all_sites():
+def fws_discrepancies_all_sites(alive_zims, field_sites):
     discrepancy_list = []
     for site in field_sites:
         fws_birds = site.find_unique_fws()
@@ -173,7 +171,7 @@ def fws_discrepancies_all_sites():
 
 # Calls discrepancy functions for all field sites to find birds unique to ZIMS list, then tries to find them in FWS
 # data. Returns a list of the discrepancies.
-def zims_discrepancies_all_sites():
+def zims_discrepancies_all_sites(alive_fws,field_sites):
     discrepancy_list = []
     for site in field_sites:
         zims_birds = site.find_unique_zims()
@@ -194,25 +192,37 @@ def zims_discrepancies_all_sites():
 # Used in 2019 analysis to change Dem and Gen selected status based on a list of living birds, and to apply location
 # updates and to 'move' 2018 chicks to their final release sites. In 2020 we'll use PMx Selection tab to update Dem
 # and Gen selected status.
-def update_ped_file():
-    alive_birds = read_living_txt(update_from_filename)
-    ped_file = PedFile(ped_filename)
+def update_chicks(ped_file: PedFile, chick_file: str):
+    #alive_birds = read_living_txt(update_from_filename)
+    # ped_file = PedFile(ped_filename)
+
+    chick_assignments = read_chick_assignments(chick_file)
+
     for individual in ped_file:
 
         # if the GAN is in our list then make sure it matches what we want
-        if str(individual.GAN) in alive_birds:
-            individual.DemSelected = True
-            individual.GenSelected = True
-            individual.Dead = False
+        # if str(individual.GAN) in alive_birds:
+        #     individual.DemSelected = True
+        #     individual.GenSelected = True
+        #     individual.Dead = False
 
         # if the individual has a known location-change then do it
-        if str(individual.Location) in location_updates:
-            individual.Location = location_updates[str(individual.Location)]
+        # if str(individual.Location) in location_updates:
+        #     individual.Location = location_updates[str(individual.Location)]
 
         # if it's a 2018 chick, 'move' it to its release site
         if str(individual.GAN) in chick_assignments:
             individual.Location = chick_assignments[str(individual.GAN)]
 
+    return ped_file
+
+
+def update_locations(ped_file: PedFile):
+    for individual in ped_file:
+        # if the individual has a known location-change then do it
+        if str(individual.Location) in location_updates:
+            individual.Location = location_updates[str(individual.Location)]
+    return ped_file
 
 # endregion
 

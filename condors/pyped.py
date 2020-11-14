@@ -39,6 +39,16 @@ class PedFile:
             if not individual.modified:
                 yield individual
 
+    def get_zims_living(self):
+        results = []
+        for individual in self.individuals:
+            if not individual.Dead:
+                bird_id = individual.GAN
+                bird_location = individual.Location
+                bird_data = [bird_id, bird_location]
+                results.append(bird_data)
+        return results
+
 
 class Individual:
 
