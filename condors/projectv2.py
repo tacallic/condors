@@ -1,8 +1,8 @@
 import sys
 import xlrd
-import pyped
 import pandas as pd
-import fieldsite
+from .pyped import PedFile
+from .fieldsite import FieldSite
 
 chick_assignments = dict()
 
@@ -16,9 +16,9 @@ FWS_file = "Jan. 2020 living.xlsx"
 
 geno_filename = "Chondro_genotypes_short.xlsx"
 
-cali = fieldsite.FieldSite("WILD-CA")
-baja = fieldsite.FieldSite("WILD-BAJA")
-ariz = fieldsite.FieldSite("WILD-AZ")
+cali = FieldSite("WILD-CA")
+baja = FieldSite("WILD-BAJA")
+ariz = FieldSite("WILD-AZ")
 
 field_sites = [cali, baja, ariz]
 
@@ -196,7 +196,7 @@ def zims_discrepancies_all_sites():
 # and Gen selected status.
 def update_ped_file():
     alive_birds = read_living_txt(update_from_filename)
-    ped_file = pyped.PedFile(ped_filename)
+    ped_file = PedFile(ped_filename)
     for individual in ped_file:
 
         # if the GAN is in our list then make sure it matches what we want
@@ -240,21 +240,21 @@ def update_ped_file():
 # df.to_csv(discrepancy_out_filename, sep=",", index=False)
 #
 # # Next, we want to correct the zims file with field site names
-ped_file = pyped.PedFile(ped_filename)
-for individual in ped_file:
-    # if the individual has a known location-change then do it
-    if str(individual.Location) in location_updates:
-        individual.Location = location_updates[str(individual.Location)]
-
-# print out the changes
-for individual in ped_file.get_modified_animals():
-    print(individual)
-    print(individual.modified_fields)
-    print()
-
-# save the file
-new_ped_file = open(new_ped_filename, "w")
-new_ped_file.write(str(ped_file))
+# ped_file = pyped.PedFile(ped_filename)
+# for individual in ped_file:
+#     # if the individual has a known location-change then do it
+#     if str(individual.Location) in location_updates:
+#         individual.Location = location_updates[str(individual.Location)]
+#
+# # print out the changes
+# for individual in ped_file.get_modified_animals():
+#     print(individual)
+#     print(individual.modified_fields)
+#     print()
+#
+# # save the file
+# new_ped_file = open(new_ped_filename, "w")
+# new_ped_file.write(str(ped_file))
 
 # also new in 2020: want to see which birds need to be genotyped by comparing Cynthia's file
 # to the ZIMS living & released list
@@ -267,5 +267,5 @@ new_ped_file.write(str(ped_file))
 # df = pd.DataFrame(data={"Condors with genotypes": data})
 # df.to_csv("living_released_genotypes.csv", sep="\t", index=False)
 
-print("done!")
-sys.exit(0)
+# print("done!")
+# sys.exit(0)
