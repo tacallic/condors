@@ -4,10 +4,16 @@ import pyped
 import pandas as pd
 import fieldsite
 
+chick_assignments = dict()
+
 ped_filename = "zims10-15-2020.zims"
+chick_assignments_filename = "input.xlsx"
+
 update_from_filename = "ZIMSlivingreleased6-25-2019.txt"
 ZIMS_living_released_file = "ZIMS Lists 2-7-2020.xlsx"
+
 FWS_file = "Jan. 2020 living.xlsx"
+
 geno_filename = "Chondro_genotypes_short.xlsx"
 
 cali = fieldsite.FieldSite("WILD-CA")
@@ -47,40 +53,15 @@ location_updates = {
     "SANDIEGOZ": "CAPTIVE"
 }
 
-chick_assignments = {
-    "935": "WILD-CA",
-    "940": "WILD-CA",
-    "918": "WILD-AZ",
-    "934": "WILD-CA",
-    "930": "WILD-AZ",
-    "944": "WILD-CA",
-    "928": "WILD-AZ",
-    "945": "WILD-CA",
-    "947": "WILD-AZ",
-    "917": "WILD-AZ",
-    "929": "WILD-AZ",
-    "948": "WILD-AZ",
-    "951": "WILD-CA",
-    "942": "WILD-CA",
-    "911": "WILD-CA",
-    "916": "WILD-BAJA",
-    "941": "WILD-CA",
-    "939": "WILD-BAJA",
-    "920": "WILD-BAJA",
-    "910": "WILD-AZ",
-    "904": "WILD-CA",
-    "909": "WILD-CA",
-    "908": "WILD-AZ",
-    "922": "WILD-AZ",
-    "921": "WILD-CA",
-    "943": "WILD-CA",
-    "913": "WILD-CA",
-    "906": "WILD-CA",
-    "915": "WILD-CA",
-    "931": "WILD-CA",
-    "872": "WILD-CA",
-}
 
+def read_chick_assignments(filename: str):
+    global chick_assignments
+    df = pd.read_excel(filename)
+    chick_assignments = dict()
+    for index, row in df.iterrows():
+        bird_id = int(row['ID'])
+        bird_location = str(row['Location']).upper().strip()
+        chick_assignments[bird_id] = bird_location
 
 # region Methods/Functions
 # To read in just a list of living bird IDs from a text file
