@@ -4,7 +4,7 @@ import pyped
 import pandas as pd
 import fieldsite
 
-ped_filename = "zims9-1-20.zims"
+ped_filename = "zims10-15-2020.zims"
 update_from_filename = "ZIMSlivingreleased6-25-2019.txt"
 ZIMS_living_released_file = "ZIMS Lists 2-7-2020.xlsx"
 FWS_file = "Jan. 2020 living.xlsx"
@@ -16,7 +16,7 @@ ariz = fieldsite.FieldSite("WILD-AZ")
 
 field_sites = [cali, baja, ariz]
 
-new_ped_filename = "output9-1-2020.zims"
+new_ped_filename = "output10-15-2020.zims"
 discrepancy_out_filename = "discrepancy_birds.csv"
 
 location_updates = {
